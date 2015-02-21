@@ -122,7 +122,7 @@ def validate(mCode):
 
     if data:
         logging.info("Validation server response: " + data)
-        sendDataToCamera(data)
+        #sendDataToCamera(data)
 
     # acknowledge
     ackData = "{\"preProcMs\": 2587432319, \"ocrMs\": 1587432319, \"validationMs\": 3587432319}"
@@ -134,7 +134,7 @@ def validate(mCode):
     s.close()
 
 def sendDataToCamera(validPlate):
-    # to do
+    """ to do """
 
 def recieveDataFromCamera(conn):
     data = conn.recv(1024)
