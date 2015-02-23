@@ -10,6 +10,8 @@ import socket
 import sys
 from thread import *
 import logging
+from boto.sns import connect_to_region
+import re
 
 ############# Logger ###################
 logging.basicConfig(filename='mobill.log',
@@ -122,7 +124,9 @@ def validate(mCode):
 
     if data:
         logging.info("Validation server response: " + data)
-        #sendDataToCamera(data)
+        code = re.search("\d\d", data.replace(" ", "")).group(0)
+        valid = True if code == 20 else False
+        sendDataToCamera(valid, mCode)
 
     # acknowledge
     ackData = "{\"preProcMs\": 2587432319, \"ocrMs\": 1587432319, \"validationMs\": 3587432319}"
@@ -133,8 +137,17 @@ def validate(mCode):
 
     s.close()
 
-def sendDataToCamera(validPlate):
-    """ to do """
+def sendDataToCamera(validPlate, plate):
+    # sending to data camera emulator (android app)
+    logging.info("Valid plate? {0}".format(validPlate))
+    sns = connect_to_region("us-west-2")
+
+    hash = {
+        "valid": 1 if validPlate else 0,
+        "plate": plate
+    }
+
+    sns.publish(topic=u'arn:aws:sns:us-west-2:408341129482:PushDemoTopic', message=str(hash), subject='plate validation')
 
 def recieveDataFromCamera(conn):
     data = conn.recv(1024)
@@ -157,6 +170,7 @@ def recieveDataFromCamera(conn):
 def startServer():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print 'Socket created'
+
 
     try:
         s.bind((HOST, PORT))
