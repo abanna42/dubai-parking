@@ -124,7 +124,7 @@ def validate(mCode):
 
     if data:
         logging.info("Validation server response: " + data)
-        code = re.search("\d\d", data.replace(" ", "")).group(0)
+        code = int(re.search("\d\d", data.replace(" ", "")).group(0))
         valid = True if code == 20 else False
         sendDataToCamera(valid, mCode)
 
